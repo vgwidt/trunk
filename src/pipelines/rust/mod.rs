@@ -372,7 +372,16 @@ impl RustApp {
                             && (art.target.kind.contains(&"bin".to_string())
                                 || art.target.kind.contains(&"cdylib".to_string())) =>
                     {
-                        Some(Ok(art))
+                        // If the data-bin attribute is set, ensure its value matches the artifact name
+                        if let Some(bin_name) = &self.bin {
+                            if bin_name == &art.target.name {
+                                Some(Ok(art))
+                            } else {
+                                None
+                            }
+                        } else {
+                            Some(Ok(art))
+                        }
                     }
                     cargo_metadata::Message::BuildFinished(finished) if !finished.success => {
                         Some(Err(anyhow!("error while fetching cargo artifact info")))
